@@ -1,0 +1,13 @@
+# Two fake upstreams on localhost, so the gateway can be exercised with no API keys.
+# See the "Try it locally" section of the README.
+clients:
+  - { name: demo, key_env: GATEWAY_KEY_DEMO, rpm: 60 }
+upstreams:
+  primary: { base_url: "http://127.0.0.1:9001/v1" }
+  backup: { base_url: "http://127.0.0.1:9002/v1" }
+routes:
+  fast:
+    - { upstream: primary, model: small-a }
+    - { upstream: backup, model: small-b }
+cache: { semantic_threshold: 0.8 }
+redact_pii: true

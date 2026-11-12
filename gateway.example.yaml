@@ -1,0 +1,41 @@
+# Copy to gateway.yaml. Secrets are read from the environment variables named here.
+
+clients:
+  - name: web-app
+    key_env: GATEWAY_KEY_WEB      # the bearer token this client presents to the gateway
+    rpm: 120
+  - name: batch-jobs
+    key_env: GATEWAY_KEY_BATCH
+    rpm: 30
+
+upstreams:
+  primary:
+    base_url: https://api.openai.com/v1
+    api_key_env: OPENAI_API_KEY
+  backup:
+    base_url: https://api.groq.com/openai/v1     # any OpenAI-compatible endpoint
+    api_key_env: GROQ_API_KEY
+  local:
+    base_url: http://localhost:11434/v1          # e.g. Ollama; no key needed
+    timeout_seconds: 120
+
+# Clients ask for an alias; the gateway tries the targets in order.
+routes:
+  fast:
+    - { upstream: primary, model: your-small-model }
+    - { upstream: backup, model: your-backup-model }
+  private:
+    - { upstream: local, model: your-local-model }
+
+cache:
+  enabled: true
+  ttl_seconds: 3600
+  max_entries: 5000
+  semantic: true
+  semantic_threshold: 0.92
+
+breaker:
+  failure_threshold: 3
+  cooldown_seconds: 30
+
+redact_pii: false
