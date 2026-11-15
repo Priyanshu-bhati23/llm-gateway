@@ -1,0 +1,15 @@
+# Gateway config used by the Vercel deployment. Secrets are environment variables
+# set in the Vercel project: GATEWAY_KEY (what clients send) and GROQ_API_KEY.
+clients:
+  - { name: demo, key_env: GATEWAY_KEY, rpm: 30 }
+upstreams:
+  groq: { base_url: "https://api.groq.com/openai/v1", api_key_env: GROQ_API_KEY }
+routes:
+  fast:
+    - { upstream: groq, model: openai/gpt-oss-20b }
+    - { upstream: groq, model: openai/gpt-oss-120b }
+  smart:
+    - { upstream: groq, model: openai/gpt-oss-120b }
+    - { upstream: groq, model: openai/gpt-oss-20b }
+cache: { ttl_seconds: 3600, semantic: true, semantic_threshold: 0.92 }
+redact_pii: true
